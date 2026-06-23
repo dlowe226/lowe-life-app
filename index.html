@@ -359,7 +359,7 @@ textarea{resize:vertical;min-height:60px}
   </div>
   <!-- Version footer -->
   <div style="padding:12px 16px;border-top:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between">
-    <span style="font-size:10px;color:var(--tx3);font-family:'DM Mono',monospace">v2.4.1</span>
+    <span style="font-size:10px;color:var(--tx3);font-family:'DM Mono',monospace">v2.4.2</span>
     <span style="font-size:10px;color:var(--tx3)">Lowe Life</span>
   </div>
 </nav>
@@ -1092,14 +1092,19 @@ textarea{resize:vertical;min-height:60px}
             </div>
             <div style="padding:8px 10px;background:var(--sf2);border-radius:var(--rs);display:flex;align-items:center;justify-content:space-between">
               <span class="txxs t3">Current version</span>
-              <span style="font-family:'DM Mono',monospace;font-size:12px;font-weight:500;color:var(--ac2)">v2.4.1</span>
+              <span style="font-family:'DM Mono',monospace;font-size:12px;font-weight:500;color:var(--ac2)">v2.4.2</span>
             </div>
             <p class="txxs t3 mt3">Export your data before receiving an update. Save the new file to the same path and your data loads automatically. If the path changes, use Import JSON.</p>
           </div>
+          <div class="card mb4" style="border-left:3px solid var(--yw)">
+            <div class="sh"><span class="st" style="color:var(--yw)">&#9888; Clear Transactions Only</span></div>
+            <p class="txs t2 mb3">Erase every transaction (e.g. demo/dummy data) but keep your accounts, categories, financial goals, budgets, and tax mappings exactly as they are. This cannot be undone.</p>
+            <button class="btn btn-sm" style="background:var(--ywbg);color:var(--yw);border:1px solid rgba(180,83,9,.3)" onclick="clearTransactionsOnly()">Clear Transactions Only</button>
+          </div>
           <div class="card mb4" style="border-left:3px solid var(--rd)">
-            <div class="sh"><span class="st" style="color:var(--rd)">&#9888; Reset All Data</span></div>
-            <p class="txs t2 mb3">Permanently erase every transaction, account, goal, budget, and setting in this browser. This cannot be undone. Use this to start fresh, e.g. after testing with demo data.</p>
-            <button class="btn bd3 btn-sm" onclick="resetAllData()">Reset All Data</button>
+            <div class="sh"><span class="st" style="color:var(--rd)">&#9888; Reset Everything</span></div>
+            <p class="txs t2 mb3">Permanently erase EVERYTHING\u2014every transaction, account, goal, budget, and setting in this browser (and the cloud, if signed in). This cannot be undone.</p>
+            <button class="btn bd3 btn-sm" onclick="resetAllData()">Reset Everything</button>
           </div>
         </div>
         <div class="card mb4">
@@ -1217,7 +1222,7 @@ textarea{resize:vertical;min-height:60px}
 
 <script>
 // ═══════════════ DATA ═══════════════
-const APP_VERSION='2.4.1'; // ← update this when you receive a new version from Claude
+const APP_VERSION='2.4.2'; // ← update this when you receive a new version from Claude
 const DA=[
   {name:"Stewart's Checking",type:"Cash"},{name:"Stewart's - Savings",type:"Cash"},
   {name:"Bank of America - Checking",type:"Cash"},{name:"Bank of America - Savings",type:"Cash"},
@@ -3766,6 +3771,44 @@ window.fbOnAuthChange=async function(user){
     document.getElementById('sync-status-lbl').textContent='';
   }
 };
+
+// Lighter option — wipes only transactions, keeps accounts/categories/goals/budgets/tax mappings intact
+async function clearTransactionsOnly(){
+  if(!confirm('This will permanently delete every transaction (e.g. demo/dummy data), but will NOT touch your accounts, categories, financial goals, budgets, or tax mappings.\n\nThis cannot be undone. Continue?')){
+    return;
+  }
+  const typed=prompt('Type CLEAR in all caps to confirm:');
+  if(typed!=='CLEAR'){
+    alert('Cancelled \u2014 text did not match.');
+    return;
+  }
+
+  // Wipe transactions only
+  txns=[];
+
+  // Clean up any goal payments that were linked to now-deleted transactions,
+  // so goals don't show "Paid" with a broken/missing link
+  goals.forEach(g=>{
+    (g.payments||[]).forEach(p=>{
+      if(p.linkedTxnId){p.paid=false;delete p.linkedTxnId;delete p.paidDate;}
+    });
+  });
+
+  save();      // persists txns (now empty) + ACCTS/CATS/obs/dues unchanged
+  saveGoals(); // persists the cleaned-up payment states
+
+  // If signed into Cloud Sync, push immediately so the cloud doesn't hold onto old transactions
+  if(window.fbCurrentUser){
+    try{ await window.fbPushState(gatherFullState()); }
+    catch(e){
+      console.error('Failed to push cleared transactions to cloud:', e);
+      alert('Transactions were cleared locally, but syncing the change to the cloud failed. Check your connection and try again if old transactions reappear.');
+    }
+  }
+
+  alert('All transactions have been cleared. Your accounts, categories, goals, budgets, and tax mappings are untouched. The app will now reload.');
+  location.reload();
+}
 
 async function resetAllData(){
   if(!confirm('This will permanently delete ALL data\u2014locally AND in the cloud if you\'re signed in:\n\n\u2022 Every transaction\n\u2022 All accounts and balances\n\u2022 All financial goals\n\u2022 All budgets\n\u2022 All categories, tax mappings, due dates\n\nThis CANNOT be undone. Make sure you have exported a backup if you want to keep anything.\n\nContinue?')){
