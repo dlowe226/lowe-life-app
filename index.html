@@ -359,7 +359,7 @@ textarea{resize:vertical;min-height:60px}
   </div>
   <!-- Version footer -->
   <div style="padding:12px 16px;border-top:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between">
-    <span style="font-size:10px;color:var(--tx3);font-family:'DM Mono',monospace">v2.4.2</span>
+    <span style="font-size:10px;color:var(--tx3);font-family:'DM Mono',monospace">v2.5.0</span>
     <span style="font-size:10px;color:var(--tx3)">Lowe Life</span>
   </div>
 </nav>
@@ -382,10 +382,6 @@ textarea{resize:vertical;min-height:60px}
       <button class="bth" onclick="toggleTheme()">
         <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
         <span id="tlbl">Light</span>
-      </button>
-      <!-- Demo exit button — only visible when demo mode is on -->
-      <button id="demo-exit-topbar" onclick="exitDemoMode()" style="display:none;background:#6d28d9;color:#fff;border:none;padding:6px 13px;border-radius:var(--rs);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;display:none;align-items:center;gap:6px">
-        🎭 Exit Demo
       </button>
       <button class="btn btn-sm bp2" onclick="go('add')">+ Add</button>
     </div>
@@ -1092,38 +1088,14 @@ textarea{resize:vertical;min-height:60px}
             </div>
             <div style="padding:8px 10px;background:var(--sf2);border-radius:var(--rs);display:flex;align-items:center;justify-content:space-between">
               <span class="txxs t3">Current version</span>
-              <span style="font-family:'DM Mono',monospace;font-size:12px;font-weight:500;color:var(--ac2)">v2.4.2</span>
+              <span style="font-family:'DM Mono',monospace;font-size:12px;font-weight:500;color:var(--ac2)">v2.5.0</span>
             </div>
             <p class="txxs t3 mt3">Export your data before receiving an update. Save the new file to the same path and your data loads automatically. If the path changes, use Import JSON.</p>
           </div>
           <div class="card mb4" style="border-left:3px solid var(--yw)">
             <div class="sh"><span class="st" style="color:var(--yw)">&#9888; Clear Transactions Only</span></div>
-            <p class="txs t2 mb3">Erase every transaction (e.g. demo/dummy data) but keep your accounts, categories, financial goals, budgets, and tax mappings exactly as they are. This cannot be undone.</p>
+            <p class="txs t2 mb3">Erase every transaction but keep your accounts, categories, financial goals, budgets, and tax mappings exactly as they are. This cannot be undone.</p>
             <button class="btn btn-sm" style="background:var(--ywbg);color:var(--yw);border:1px solid rgba(180,83,9,.3)" onclick="clearTransactionsOnly()">Clear Transactions Only</button>
-          </div>
-          <div class="card mb4" style="border-left:3px solid var(--rd)">
-            <div class="sh"><span class="st" style="color:var(--rd)">&#9888; Reset Everything</span></div>
-            <p class="txs t2 mb3">Permanently erase EVERYTHING\u2014every transaction, account, goal, budget, and setting in this browser (and the cloud, if signed in). This cannot be undone.</p>
-            <button class="btn bd3 btn-sm" onclick="resetAllData()">Reset Everything</button>
-          </div>
-        </div>
-        <div class="card mb4">
-          <div class="sh"><span class="st">🎭 Demo Mode</span></div>
-          <p class="txs t2 mb3">Load dummy data to show someone the app without revealing your real transactions. Your real data is saved and fully restored when you exit.</p>
-          <button class="btn btn-sm" style="background:var(--acl);color:var(--ac2);border:1px solid var(--ac2)" onclick="enterDemoMode()">Enter Demo Mode</button>
-          <div id="demo-active-notice" style="display:none;margin-top:10px;padding:10px;background:var(--acl);border-radius:var(--rs);border:1px solid var(--ac2)">
-            <div class="fw6 txs" style="color:var(--ac2)">🎭 Demo Mode Active</div>
-            <div class="txs t2 mt3 mb3">Showing dummy data. Your real data is safe.</div>
-            <button class="btn bp2 btn-sm" onclick="exitDemoMode()">Exit &amp; Restore My Data</button>
-          </div>
-        </div>
-        <div class="card">
-          <div class="sh"><span class="st">&#128161; Suggestions for Future Features</span></div>
-          <div class="rg" style="font-size:13px;color:var(--tx2)">
-            <div style="padding:10px;background:var(--blbg);border-radius:var(--rs);border-left:3px solid var(--bl)"><strong class="tc">&#128202; Net Worth Over Time</strong><br>A line chart of your net worth month-over-month.</div>
-            <div style="padding:10px;background:var(--ywbg);border-radius:var(--rs);border-left:3px solid var(--yw)"><strong class="tc">&#127919; Savings Goals</strong><br>Track progress toward vacation fund, emergency fund, down payment, etc.</div>
-            <div style="padding:10px;background:var(--orbg);border-radius:var(--rs);border-left:3px solid var(--or)"><strong class="tc">&#128190; Receipt Attachments</strong><br>Attach a receipt photo or PDF to each transaction for a full paper trail.</div>
-            <div style="padding:10px;background:var(--acl);border-radius:var(--rs);border-left:3px solid var(--ac2)"><strong class="tc">☁️ Google Drive Sync</strong><br>One-click save/load to Drive so your data follows you across devices.</div>
           </div>
         </div>
       </div>
@@ -1222,7 +1194,7 @@ textarea{resize:vertical;min-height:60px}
 
 <script>
 // ═══════════════ DATA ═══════════════
-const APP_VERSION='2.4.2'; // ← update this when you receive a new version from Claude
+const APP_VERSION='2.5.0'; // ← update this when you receive a new version from Claude
 const DA=[
   {name:"Stewart's Checking",type:"Cash"},{name:"Stewart's - Savings",type:"Cash"},
   {name:"Bank of America - Checking",type:"Cash"},{name:"Bank of America - Savings",type:"Cash"},
@@ -2793,94 +2765,6 @@ function rSettings(){
   });
 }
 
-// ═══════════════ DEMO MODE ═══════════════
-let demoActive=false;
-function enterDemoMode(){
-  if(demoActive){alert('Already in demo mode.');return;}
-  // Save real data under a backup key
-  localStorage.setItem('llb_real_backup',JSON.stringify({t:txns,o:obs,a:ACCTS,c:CATS,d:dues,tm:taxMaps,aa:archivedAccts,ac:archivedCats,p:goals,bf:balFloors}));
-  demoActive=true;localStorage.setItem('llb_demo_active','1');
-  // Load demo data
-  const now=new Date();const m=now.toISOString().slice(0,7);
-  const pm=new Date(now.getFullYear(),now.getMonth()-1,1).toISOString().slice(0,7);
-  const pm2=new Date(now.getFullYear(),now.getMonth()-2,1).toISOString().slice(0,7);
-  ACCTS=JSON.parse(JSON.stringify(DEFAULT_ACCOUNTS));
-  obs={"Demo Checking":12400,"Demo Savings":28000,"Demo - 360 Savings":15000,"Demo VentureX":1240};
-  dues=[{acct:'Demo VentureX',day:15,al:7}];
-  txns=[
-    {id:gid(),date:`${pm2}-01`,amount:5200,desc:'Paycheck - Demo',cat:'Wages',sub:'Paycheck - David',acct:'Demo Checking',notes:'',type:'income'},
-    {id:gid(),date:`${pm2}-05`,amount:2400,desc:'Mortgage',cat:'Home',sub:'Rent/mortgage',acct:'Demo Checking',notes:'',type:'expense'},
-    {id:gid(),date:`${pm2}-08`,amount:214,desc:'Whole Foods',cat:'Everyday',sub:'Groceries',acct:'Demo VentureX',notes:'',type:'expense'},
-    {id:gid(),date:`${pm2}-12`,amount:87,desc:'Cheesecake Factory',cat:'Everyday',sub:'Restaurants/bars',acct:'Demo VentureX',notes:'Team dinner',type:'expense'},
-    {id:gid(),date:`${pm2}-15`,amount:42,desc:'Netflix / Spotify',cat:'Everyday',sub:'Subscriptions',acct:'Demo VentureX',notes:'',type:'expense',recurring:{freq:'monthly',lastPosted:`${pm2}-15`,endDate:null}},
-    {id:gid(),date:`${pm}-01`,amount:5200,desc:'Paycheck - Demo',cat:'Wages',sub:'Paycheck - David',acct:'Demo Checking',notes:'',type:'income'},
-    {id:gid(),date:`${pm}-05`,amount:2400,desc:'Mortgage',cat:'Home',sub:'Rent/mortgage',acct:'Demo Checking',notes:'',type:'expense'},
-    {id:gid(),date:`${pm}-10`,amount:185,desc:'Whole Foods',cat:'Everyday',sub:'Groceries',acct:'Demo VentureX',notes:'',type:'expense'},
-    {id:gid(),date:`${pm}-14`,amount:65,desc:'National Grid',cat:'Utilities',sub:'Electricity',acct:'Demo Checking',notes:'',type:'expense'},
-    {id:gid(),date:`${pm}-20`,amount:320,desc:'Dinner with friends',cat:'Everyday',sub:'Restaurants/bars',acct:'Demo VentureX',notes:'Split 4 ways — awaiting reimbursement',type:'expense',split:[{name:'Alex',amount:80},{name:'Jamie',amount:80},{name:'Sam',amount:80}]},
-    {id:gid(),date:`${pm}-22`,amount:80,desc:'Dinner reimbursement - Alex',cat:'Other',sub:'Refunds',acct:'Demo Checking',notes:'Venmo',type:'income'},
-    {id:gid(),date:`${m}-01`,amount:5200,desc:'Paycheck - Demo',cat:'Wages',sub:'Paycheck - David',acct:'Demo Checking',notes:'',type:'income'},
-    {id:gid(),date:`${m}-05`,amount:2400,desc:'Mortgage',cat:'Home',sub:'Rent/mortgage',acct:'Demo Checking',notes:'',type:'expense'},
-    {id:gid(),date:`${m}-08`,amount:198,desc:'Whole Foods',cat:'Everyday',sub:'Groceries',acct:'Demo VentureX',notes:'',type:'expense'},
-    {id:gid(),date:`${m}-10`,amount:45,desc:'Amazon return',cat:'Everyday',sub:'Clothes',acct:'Demo VentureX',notes:'Wrong size',type:'refund'},
-    {id:gid(),date:`${m}-12`,amount:250,desc:'Pediatrician',cat:'Health/medical',sub:'Specialty care',acct:'Demo Checking',notes:'',type:'expense'},
-    {id:gid(),date:`${m}-14`,amount:1800,desc:'Daycare',cat:'Babies/Kids',sub:'Daycare',acct:'Demo Checking',notes:'Monthly tuition',type:'expense',recurring:{freq:'monthly',lastPosted:`${m}-14`,endDate:null}},
-  ];
-  save();initForms();rDash();
-  document.getElementById('demo-active-notice').style.display='';
-  showDemoBanner();
-  toast('🎭 Demo mode active — showing dummy data');
-}
-function exitDemoMode(){
-  const backup=JSON.parse(localStorage.getItem('llb_real_backup')||'null');
-  if(backup){
-    txns=backup.t;obs=backup.o;if(backup.a)ACCTS=backup.a;if(backup.c)CATS=backup.c;
-    if(backup.d)dues=backup.d;if(backup.tm)taxMaps=backup.tm;
-    if(backup.aa){archivedAccts=backup.aa;saveArch();}
-    if(backup.ac){archivedCats=backup.ac;localStorage.setItem('llb_arch',JSON.stringify(archivedCats));}
-    if(backup.p)goals=backup.p;if(backup.bf)balFloors=backup.bf;
-    save();saveTaxMaps();saveGoals();saveFloorData();
-  }
-  demoActive=false;localStorage.removeItem('llb_demo_active');localStorage.removeItem('llb_real_backup');
-  document.getElementById('demo-active-notice').style.display='none';
-  const banner=document.getElementById('demo-banner');
-  if(banner){
-    banner.remove();
-    requestAnimationFrame(()=>{
-      const sb=document.querySelector('.sb');
-      const main=document.querySelector('.main');
-      if(sb)sb.style.top='';
-      if(main)main.style.marginTop='';
-    });
-  }
-  const topBtn=document.getElementById('demo-exit-topbar');if(topBtn)topBtn.style.display='none';
-  initForms();rDash();
-  toast('\u2713 Demo mode exited \u2014 your real data is restored');
-}
-function showDemoBanner(){
-  // Remove any existing banner first
-  const existing=document.getElementById('demo-banner');
-  if(existing)existing.remove();
-
-  const banner=document.createElement('div');
-  banner.id='demo-banner';
-  banner.style.cssText='position:fixed;top:0;left:0;right:0;background:#6d28d9;color:#fff;text-align:center;font-size:12px;font-weight:600;padding:6px 12px;z-index:9999;display:flex;align-items:center;justify-content:center;gap:12px;box-shadow:0 2px 8px rgba(0,0,0,.3)';
-  banner.innerHTML='&#127917; Demo Mode — showing dummy data &nbsp;<button onclick="exitDemoMode()" style="background:rgba(255,255,255,.25);border:1px solid rgba(255,255,255,.4);color:#fff;padding:4px 12px;border-radius:4px;cursor:pointer;font-size:12px;font-weight:600;font-family:inherit">Exit Demo Mode</button>';
-  document.body.prepend(banner);
-
-  // Push sidebar and main down — use requestAnimationFrame to ensure DOM is ready
-  requestAnimationFrame(()=>{
-    const sb=document.querySelector('.sb');
-    const main=document.querySelector('.main');
-    if(sb)sb.style.top='34px';
-    if(main)main.style.marginTop='34px';
-  });
-
-  // Show topbar exit button
-  const topBtn=document.getElementById('demo-exit-topbar');
-  if(topBtn)topBtn.style.display='flex';
-}
-
 // ═══════════════ FINANCIAL PROJECTS ═══════════════
 let goals=JSON.parse(localStorage.getItem('llb_goals')||'[]');
 let balFloors=JSON.parse(localStorage.getItem('llb_floors')||'{}');
@@ -3733,7 +3617,6 @@ window.fbApplyRemoteState=function(state){
 // Debounced push — call this after ANY local data change
 function syncToCloud(){
   if(!window.fbCurrentUser)return; // not signed in, local-only
-  if(typeof demoActive!=='undefined'&&demoActive)return; // never push demo/dummy data to the cloud
   clearTimeout(syncDebounceTimer);
   syncDebounceTimer=setTimeout(()=>{
     window.fbPushState(gatherFullState());
@@ -3774,14 +3657,8 @@ window.fbOnAuthChange=async function(user){
 
 // Lighter option — wipes only transactions, keeps accounts/categories/goals/budgets/tax mappings intact
 async function clearTransactionsOnly(){
-  if(!confirm('This will permanently delete every transaction (e.g. demo/dummy data), but will NOT touch your accounts, categories, financial goals, budgets, or tax mappings.\n\nThis cannot be undone. Continue?')){
-    return;
-  }
-  const typed=prompt('Type CLEAR in all caps to confirm:');
-  if(typed!=='CLEAR'){
-    alert('Cancelled \u2014 text did not match.');
-    return;
-  }
+  const ok=confirm('CLEAR TRANSACTIONS\n\nThis will permanently delete every transaction.\n\nYour accounts, categories, financial goals, budgets, and tax mappings will NOT be touched.\n\nThis cannot be undone.\n\nClick OK to permanently clear all transactions now.');
+  if(!ok)return;
 
   // Wipe transactions only
   txns=[];
@@ -3806,42 +3683,7 @@ async function clearTransactionsOnly(){
     }
   }
 
-  alert('All transactions have been cleared. Your accounts, categories, goals, budgets, and tax mappings are untouched. The app will now reload.');
-  location.reload();
-}
-
-async function resetAllData(){
-  if(!confirm('This will permanently delete ALL data\u2014locally AND in the cloud if you\'re signed in:\n\n\u2022 Every transaction\n\u2022 All accounts and balances\n\u2022 All financial goals\n\u2022 All budgets\n\u2022 All categories, tax mappings, due dates\n\nThis CANNOT be undone. Make sure you have exported a backup if you want to keep anything.\n\nContinue?')){
-    return;
-  }
-  const typed=prompt('Type DELETE in all caps to confirm you want to permanently erase all data:');
-  if(typed!=='DELETE'){
-    alert('Reset cancelled \u2014 text did not match.');
-    return;
-  }
-
-  // Clear local storage
-  const keys=['llb_t','llb_o','llb_a','llb_c','llb_d','llb_budgets','llb_goals',
-    'llb_floors','llb_taxmaps','llb_arch','llb_arch_a','llb_demo_active','llb_real_backup'];
-  keys.forEach(k=>localStorage.removeItem(k));
-
-  // CRITICAL: if signed into Cloud Sync, also wipe the cloud copy.
-  // Otherwise the moment the page reloads, it pulls the old data right back down.
-  if(window.fbCurrentUser){
-    try{
-      const emptyState={
-        ACCTS:DA, CATS:DC, txns:[], obs:{}, dues:[],
-        taxMaps:DEFAULT_TAX_MAPS, archivedAccts:{}, archivedCats:{},
-        goals:[], balFloors:{}, budgets:{}
-      };
-      await window.fbPushState(emptyState);
-    }catch(e){
-      console.error('Failed to clear cloud data:', e);
-      alert('Local data was cleared, but clearing your cloud data failed. Check your internet connection and try again, or your old data may sync back down.');
-    }
-  }
-
-  alert('All data has been erased\u2014locally and in the cloud. The app will now reload with a clean slate.');
+  alert('Done \u2014 all transactions have been cleared. Your accounts, categories, goals, budgets, and tax mappings are untouched. The app will now reload.');
   location.reload();
 }
 
@@ -3870,48 +3712,14 @@ function impData(input){
 }
 
 
-// ═══════════════ INIT + DEMO DATA ═══════════════
+// ═══════════════ INIT ═══════════════
 window.addEventListener('DOMContentLoaded',()=>{
   initForms();chkDues();
   // Init tax mapping modal selects
   tmTypeChanged();
   initTaxYear();
-  // Restore demo banner if app was refreshed during demo
-  if(localStorage.getItem('llb_demo_active')==='1'){demoActive=true;showDemoBanner();document.getElementById('demo-active-notice').style.display='';}
   // Attach amount listener for split totals
   document.getElementById('e-a')?.addEventListener('input',()=>{if(document.getElementById('e-split')?.checked)updSplitTotals();});
-  if(txns.length===0){
-    const now=new Date();
-    const m=now.toISOString().slice(0,7);
-    const pm=new Date(now.getFullYear(),now.getMonth()-1,1).toISOString().slice(0,7);
-    const pm2=new Date(now.getFullYear(),now.getMonth()-2,1).toISOString().slice(0,7);
-    obs={"Stewart's Checking":8500,"Stewart's - Savings":12000,"Bank of America - Checking":3200,"Capital One 360 Savings":25000,"Capital One - VentureX":840,"Capital One - Venture":320};
-    dues=[{acct:'Capital One - VentureX',day:15,al:7},{acct:'Capital One - Venture',day:22,al:7}];
-    const demo=[
-      {id:gid(),date:`${pm2}-03`,amount:4250,desc:'Paycheck - David',cat:'Wages',sub:'Paycheck - David',acct:"Stewart's Checking",notes:'',type:'income',reconciled:true},
-      {id:gid(),date:`${pm2}-03`,amount:2100,desc:'Paycheck - Molly',cat:'Wages',sub:'Paycheck - Molly',acct:"Stewart's Checking",notes:'',type:'income',reconciled:true},
-      {id:gid(),date:`${pm2}-05`,amount:2200,desc:'Mortgage',cat:'Home',sub:'Rent/mortgage',acct:"Stewart's Checking",notes:'',type:'expense',reconciled:true},
-      {id:gid(),date:`${pm2}-10`,amount:148,desc:'Whole Foods',cat:'Everyday',sub:'Groceries',acct:'Capital One - VentureX',notes:'Weekly shop',type:'expense',reconciled:true},
-      {id:gid(),date:`${pm2}-12`,amount:62,desc:'National Grid',cat:'Utilities',sub:'Electricity',acct:"Stewart's Checking",notes:'',type:'expense',reconciled:true},
-      {id:gid(),date:`${pm}-03`,amount:4250,desc:'Paycheck - David',cat:'Wages',sub:'Paycheck - David',acct:"Stewart's Checking",notes:'',type:'income',reconciled:true},
-      {id:gid(),date:`${pm}-03`,amount:2100,desc:'Paycheck - Molly',cat:'Wages',sub:'Paycheck - Molly',acct:"Stewart's Checking",notes:'',type:'income',reconciled:true},
-      {id:gid(),date:`${pm}-05`,amount:2200,desc:'Mortgage',cat:'Home',sub:'Rent/mortgage',acct:"Stewart's Checking",notes:'',type:'expense',reconciled:true},
-      {id:gid(),date:`${pm}-08`,amount:87,desc:'Cheesecake Factory',cat:'Everyday',sub:'Restaurants/bars',acct:'Capital One - VentureX',notes:'Date night',type:'expense',reconciled:false},
-      {id:gid(),date:`${pm}-12`,amount:42,desc:'Subscriptions',cat:'Everyday',sub:'Subscriptions',acct:'Capital One - Venture',notes:'Spotify, Netflix',type:'expense',reconciled:false},
-      {id:gid(),date:`${m}-03`,amount:4250,desc:'Paycheck - David',cat:'Wages',sub:'Paycheck - David',acct:"Stewart's Checking",notes:'Direct deposit',type:'income',reconciled:false},
-      {id:gid(),date:`${m}-03`,amount:2100,desc:'Paycheck - Molly',cat:'Wages',sub:'Paycheck - Molly',acct:"Stewart's Checking",notes:'',type:'income',reconciled:false},
-      {id:gid(),date:`${m}-05`,amount:2200,desc:'Mortgage',cat:'Home',sub:'Rent/mortgage',acct:"Stewart's Checking",notes:'',type:'expense',reconciled:false},
-      {id:gid(),date:`${m}-07`,amount:156,desc:'Whole Foods',cat:'Everyday',sub:'Groceries',acct:'Capital One - VentureX',notes:'',type:'expense',reconciled:false},
-      {id:gid(),date:`${m}-09`,amount:65,desc:'National Grid',cat:'Utilities',sub:'Electricity',acct:"Stewart's Checking",notes:'',type:'expense',reconciled:false},
-    ];
-    const pid=gid();
-    demo.push({id:pid+'_pout',date:`${m}-11`,amount:500,desc:'CC Payment to Capital One - VentureX',cat:'CC Payment',sub:'',acct:"Stewart's Checking",notes:'Monthly payoff',type:'payment',pair:pid+'_pin',reconciled:false});
-    demo.push({id:pid+'_pin',date:`${m}-11`,amount:500,desc:'Payment from Checking',cat:'CC Payment',sub:'',acct:'Capital One - VentureX',notes:'Monthly payoff',type:'payment',pair:pid+'_pout',reconciled:false});
-    const iid=gid();
-    demo.push({id:iid+'_iout',date:`${m}-10`,amount:800,desc:'Contribution to Ameriprise',cat:'Investment',sub:'Contribution',acct:"Stewart's Checking",notes:'Monthly contribution',type:'investment',pair:iid+'_iin',reconciled:false});
-    demo.push({id:iid+'_iin',date:`${m}-10`,amount:800,desc:'Contribution from Checking',cat:'Investment',sub:'Contribution',acct:'Ameriprise',notes:'Monthly contribution',type:'investment',pair:iid+'_iout',reconciled:false});
-    txns=demo;save();chkDues();
-  }
   // Wire mobile sidebar close on nav tap + dash stats class
   document.querySelectorAll('.ni').forEach(el=>{
     el.addEventListener('click',()=>{if(window.innerWidth<=1024)closeSidebar();});
