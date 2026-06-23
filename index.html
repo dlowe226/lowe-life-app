@@ -359,7 +359,7 @@ textarea{resize:vertical;min-height:60px}
   </div>
   <!-- Version footer -->
   <div style="padding:12px 16px;border-top:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between">
-    <span style="font-size:10px;color:var(--tx3);font-family:'DM Mono',monospace">v2.4.0</span>
+    <span style="font-size:10px;color:var(--tx3);font-family:'DM Mono',monospace">v2.4.1</span>
     <span style="font-size:10px;color:var(--tx3)">Lowe Life</span>
   </div>
 </nav>
@@ -1092,7 +1092,7 @@ textarea{resize:vertical;min-height:60px}
             </div>
             <div style="padding:8px 10px;background:var(--sf2);border-radius:var(--rs);display:flex;align-items:center;justify-content:space-between">
               <span class="txxs t3">Current version</span>
-              <span style="font-family:'DM Mono',monospace;font-size:12px;font-weight:500;color:var(--ac2)">v2.4.0</span>
+              <span style="font-family:'DM Mono',monospace;font-size:12px;font-weight:500;color:var(--ac2)">v2.4.1</span>
             </div>
             <p class="txxs t3 mt3">Export your data before receiving an update. Save the new file to the same path and your data loads automatically. If the path changes, use Import JSON.</p>
           </div>
@@ -1217,7 +1217,7 @@ textarea{resize:vertical;min-height:60px}
 
 <script>
 // ═══════════════ DATA ═══════════════
-const APP_VERSION='2.4.0'; // ← update this when you receive a new version from Claude
+const APP_VERSION='2.4.1'; // ← update this when you receive a new version from Claude
 const DA=[
   {name:"Stewart's Checking",type:"Cash"},{name:"Stewart's - Savings",type:"Cash"},
   {name:"Bank of America - Checking",type:"Cash"},{name:"Bank of America - Savings",type:"Cash"},
@@ -3767,8 +3767,8 @@ window.fbOnAuthChange=async function(user){
   }
 };
 
-function resetAllData(){
-  if(!confirm('This will permanently delete ALL data in this browser:\n\n\u2022 Every transaction\n\u2022 All accounts and balances\n\u2022 All financial goals\n\u2022 All budgets\n\u2022 All categories, tax mappings, due dates\n\nThis CANNOT be undone. Make sure you have exported a backup if you want to keep anything.\n\nContinue?')){
+async function resetAllData(){
+  if(!confirm('This will permanently delete ALL data\u2014locally AND in the cloud if you\'re signed in:\n\n\u2022 Every transaction\n\u2022 All accounts and balances\n\u2022 All financial goals\n\u2022 All budgets\n\u2022 All categories, tax mappings, due dates\n\nThis CANNOT be undone. Make sure you have exported a backup if you want to keep anything.\n\nContinue?')){
     return;
   }
   const typed=prompt('Type DELETE in all caps to confirm you want to permanently erase all data:');
@@ -3776,10 +3776,29 @@ function resetAllData(){
     alert('Reset cancelled \u2014 text did not match.');
     return;
   }
+
+  // Clear local storage
   const keys=['llb_t','llb_o','llb_a','llb_c','llb_d','llb_budgets','llb_goals',
     'llb_floors','llb_taxmaps','llb_arch','llb_arch_a','llb_demo_active','llb_real_backup'];
   keys.forEach(k=>localStorage.removeItem(k));
-  alert('All data has been erased. The app will now reload with a clean slate.');
+
+  // CRITICAL: if signed into Cloud Sync, also wipe the cloud copy.
+  // Otherwise the moment the page reloads, it pulls the old data right back down.
+  if(window.fbCurrentUser){
+    try{
+      const emptyState={
+        ACCTS:DA, CATS:DC, txns:[], obs:{}, dues:[],
+        taxMaps:DEFAULT_TAX_MAPS, archivedAccts:{}, archivedCats:{},
+        goals:[], balFloors:{}, budgets:{}
+      };
+      await window.fbPushState(emptyState);
+    }catch(e){
+      console.error('Failed to clear cloud data:', e);
+      alert('Local data was cleared, but clearing your cloud data failed. Check your internet connection and try again, or your old data may sync back down.');
+    }
+  }
+
+  alert('All data has been erased\u2014locally and in the cloud. The app will now reload with a clean slate.');
   location.reload();
 }
 
