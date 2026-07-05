@@ -359,7 +359,7 @@ textarea{resize:vertical;min-height:60px}
   </div>
   <!-- Version footer -->
   <div style="padding:12px 16px;border-top:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between">
-    <span style="font-size:10px;color:var(--tx3);font-family:'DM Mono',monospace">v2.5.2</span>
+    <span style="font-size:10px;color:var(--tx3);font-family:'DM Mono',monospace">v2.6.0</span>
     <span style="font-size:10px;color:var(--tx3)">Lowe Life</span>
   </div>
 </nav>
@@ -1088,7 +1088,7 @@ textarea{resize:vertical;min-height:60px}
             </div>
             <div style="padding:8px 10px;background:var(--sf2);border-radius:var(--rs);display:flex;align-items:center;justify-content:space-between">
               <span class="txxs t3">Current version</span>
-              <span style="font-family:'DM Mono',monospace;font-size:12px;font-weight:500;color:var(--ac2)">v2.5.2</span>
+              <span style="font-family:'DM Mono',monospace;font-size:12px;font-weight:500;color:var(--ac2)">v2.6.0</span>
             </div>
             <p class="txxs t3 mt3">Export your data before receiving an update. Save the new file to the same path and your data loads automatically. If the path changes, use Import JSON.</p>
           </div>
@@ -1172,12 +1172,28 @@ textarea{resize:vertical;min-height:60px}
 <div class="mbd" id="m-edit">
   <div class="modal"><div class="mh"><span class="mt">Edit Transaction</span><button class="cx" onclick="closeM('m-edit')"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
     <div class="mb2">
+      <div id="m-edit-pairnote" style="display:none;padding:9px 12px;background:var(--ywbg);border-radius:var(--rs);border:1px solid rgba(180,83,9,.3);margin-bottom:12px">
+        <span class="txs" style="color:var(--yw)">This is part of a linked transfer/payment. You can edit its description, category, and notes here. To change the amount or accounts, delete it and re-create the transfer.</span>
+      </div>
+      <div class="fg">
+        <div class="ig"><label>Date</label><input type="date" id="m-d"/></div>
+        <div class="ig"><label>Amount</label><input type="number" id="m-a" step="0.01" min="0"/></div>
+      </div>
       <div class="ig"><label>Description</label><input type="text" id="m-de"/></div>
-      <div class="ig"><label>Category</label><select id="m-c"></select></div>
-      <div class="ig"><label>Subcategory</label><select id="m-s"></select></div>
+      <div class="fg">
+        <div class="ig"><label>Category</label><select id="m-c"></select></div>
+        <div class="ig"><label>Subcategory</label><select id="m-s"></select></div>
+      </div>
+      <div class="ig"><label>Account</label><select id="m-ac"></select></div>
       <div class="ig"><label>Notes</label><textarea id="m-n"></textarea></div>
     </div>
-    <div class="mf"><button class="btn bg2" onclick="closeM('m-edit')">Cancel</button><button class="btn bp2" onclick="saveEdit()">Save</button></div>
+    <div class="mf" style="justify-content:space-between">
+      <button class="btn bd3" onclick="deleteTxn()">Delete</button>
+      <div class="fx g8">
+        <button class="btn bg2" onclick="closeM('m-edit')">Cancel</button>
+        <button class="btn bp2" onclick="saveEdit()">Save</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -1194,7 +1210,7 @@ textarea{resize:vertical;min-height:60px}
 
 <script>
 // ═══════════════ DATA ═══════════════
-const APP_VERSION='2.5.2'; // ← update this when you receive a new version from Claude
+const APP_VERSION='2.6.0'; // ← update this when you receive a new version from Claude
 const DA=[
   {name:"Stewart's Checking",type:"Cash"},{name:"Stewart's - Savings",type:"Cash"},
   {name:"Bank of America - Checking",type:"Cash"},{name:"Bank of America - Savings",type:"Cash"},
@@ -1713,11 +1729,82 @@ function gSearch(v){document.getElementById('tsrch').value=v;rTxns();}
 // ═══════════════ EDIT ═══════════════
 function openEdit(id){
   eid=id;const t=txns.find(x=>x.id===id);if(!t)return;
-  document.getElementById('m-de').value=t.desc;document.getElementById('m-n').value=t.notes||'';
+  const isPaired=['transfer','payment','investment'].includes(t.type);
+
+  document.getElementById('m-de').value=t.desc;
+  document.getElementById('m-n').value=t.notes||'';
+  document.getElementById('m-d').value=t.date;
+  document.getElementById('m-a').value=t.amount;
+
   const mc=document.getElementById('m-c'),ms=document.getElementById('m-s');
-  const top=t.type==='income'?'Income':'Expenses';fCS(mc,top);mc.value=t.cat;mc.onchange=()=>fSS(ms,mc,top);fSS(ms,mc,top);ms.value=t.sub||'';openM('m-edit');
+  // income uses Income categories; everything else uses Expenses categories
+  const catTop=t.type==='income'?'Income':'Expenses';
+  fCS(mc,catTop);mc.value=t.cat;mc.onchange=()=>fSS(ms,mc,catTop);fSS(ms,mc,catTop);ms.value=t.sub||'';
+
+  // Account dropdown
+  const mac=document.getElementById('m-ac');
+  fAS(mac,['Cash','Credit card'],false);
+  mac.value=t.acct;
+
+  // For paired transactions, lock amount + account (editing those safely requires re-creating the pair)
+  const pairNote=document.getElementById('m-edit-pairnote');
+  document.getElementById('m-a').disabled=isPaired;
+  document.getElementById('m-ac').disabled=isPaired;
+  document.getElementById('m-c').disabled=isPaired;
+  document.getElementById('m-s').disabled=isPaired;
+  pairNote.style.display=isPaired?'':'none';
+
+  openM('m-edit');
 }
-function saveEdit(){const t=txns.find(x=>x.id===eid);if(t){t.desc=document.getElementById('m-de').value;t.notes=document.getElementById('m-n').value;t.cat=document.getElementById('m-c').value;t.sub=document.getElementById('m-s').value;save();rTxns();rDash();}closeM('m-edit');}
+
+function saveEdit(){
+  const t=txns.find(x=>x.id===eid);
+  if(t){
+    const isPaired=['transfer','payment','investment'].includes(t.type);
+    t.desc=document.getElementById('m-de').value;
+    t.notes=document.getElementById('m-n').value;
+    t.date=document.getElementById('m-d').value;
+    if(!isPaired){
+      const newAmt=parseFloat(document.getElementById('m-a').value);
+      if(!isNaN(newAmt)&&newAmt>0)t.amount=newAmt;
+      t.cat=document.getElementById('m-c').value;
+      t.sub=document.getElementById('m-s').value;
+      t.acct=document.getElementById('m-ac').value;
+    }
+    save();rTxns();rDash();
+  }
+  closeM('m-edit');
+}
+
+function deleteTxn(){
+  const t=txns.find(x=>x.id===eid);if(!t)return;
+  const isPaired=['transfer','payment','investment'].includes(t.type);
+
+  let msg='Delete this transaction? This cannot be undone.';
+  if(isPaired)msg='Delete this transfer/payment? Both linked sides will be removed. This cannot be undone.';
+  if(t.goalPaymentId)msg='Delete this transaction? It is linked to a financial goal payment, which will be marked unpaid. This cannot be undone.';
+  if(!confirm(msg))return;
+
+  // If linked to a goal payment, unmark that payment as paid
+  if(t.goalPaymentId){
+    goals.forEach(g=>{
+      (g.payments||[]).forEach(p=>{
+        if(p.id===t.goalPaymentId){p.paid=false;delete p.linkedTxnId;delete p.paidDate;}
+      });
+    });
+    saveGoals();
+  }
+
+  if(isPaired&&t.pair){
+    // Remove both halves of the pair
+    txns=txns.filter(x=>x.id!==t.id&&x.id!==t.pair);
+  }else{
+    txns=txns.filter(x=>x.id!==t.id);
+  }
+
+  save();rTxns();rDash();closeM('m-edit');
+  toast('Transaction deleted');
+}
 
 // ═══════════════ ACCOUNTS ═══════════════
 let archivedAccts=JSON.parse(localStorage.getItem('llb_arch_a')||'{}');
