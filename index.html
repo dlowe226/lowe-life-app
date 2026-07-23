@@ -360,7 +360,7 @@ textarea{resize:vertical;min-height:60px}
   </div>
   <!-- Version footer -->
   <div style="padding:12px 16px;border-top:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between">
-    <span style="font-size:10px;color:var(--tx3);font-family:'DM Mono',monospace">v2.9.3</span>
+    <span style="font-size:10px;color:var(--tx3);font-family:'DM Mono',monospace">v2.9.4</span>
     <span style="font-size:10px;color:var(--tx3)">Lowe Life</span>
   </div>
 </nav>
@@ -1137,7 +1137,7 @@ textarea{resize:vertical;min-height:60px}
             </div>
             <div style="padding:8px 10px;background:var(--sf2);border-radius:var(--rs);display:flex;align-items:center;justify-content:space-between">
               <span class="txxs t3">Current version</span>
-              <span style="font-family:'DM Mono',monospace;font-size:12px;font-weight:500;color:var(--ac2)">v2.9.3</span>
+              <span style="font-family:'DM Mono',monospace;font-size:12px;font-weight:500;color:var(--ac2)">v2.9.4</span>
             </div>
             <p class="txxs t3 mt3">Export your data before receiving an update. Save the new file to the same path and your data loads automatically. If the path changes, use Import JSON.</p>
           </div>
@@ -1320,7 +1320,7 @@ const localStorage=(function(){
 })();
 
 // ═══════════════ DATA ═══════════════
-const APP_VERSION='2.9.3'; // ← update this when you receive a new version from Claude
+const APP_VERSION='2.9.4'; // ← update this when you receive a new version from Claude
 // New users start with NO accounts — they add their own.
 // Existing users are unaffected: their accounts load from localStorage/cloud, and this
 // array is only ever used as a fallback when storage is completely empty.
@@ -2686,11 +2686,31 @@ function rFlowReport(){
 
 // Builds a 3-column Sankey: Income Sources -> "Income" hub -> Expense Categories,
 // with a 4th column of subcategories nested under each expense category on hover/tap.
+function truncLabel(s,maxChars){
+  s=String(s);
+  return s.length>maxChars?s.slice(0,maxChars-1)+'\u2026':s;
+}
+
 function buildSankeySVG(incBySrc,expByCat,totalIncome,totalExpense){
-  const W=Math.max(900,window.innerWidth>1024?1000:900);
-  const H=Math.max(420,Object.keys(expByCat).length*46+120);
-  const colX=[40,W*0.32,W*0.68,W-40];
-  const nodeW=14;
+  // Size to the ACTUAL available space, not the whole window (which includes the sidebar)
+  const container=document.getElementById('fr-out');
+  const containerW=container?container.clientWidth:0;
+  const isMobile=window.innerWidth<640;
+  const W=Math.max(320,Math.min(1100,containerW||(isMobile?340:900)));
+
+  // Reserve real horizontal space for labels so text can never run off the edges
+  const leftPad=isMobile?86:150;
+  const rightPad=isMobile?96:160;
+  const nodeW=isMobile?7:14;
+  const fontMain=isMobile?10:12;
+  const fontSub=isMobile?9:11;
+  const maxLabelChars=isMobile?11:20;
+  const topPad=46;
+
+  const plotL=leftPad,plotR=W-rightPad-nodeW;
+  const colX=[plotL,plotL+(plotR-plotL)*0.46,plotR];
+
+  const H=Math.max(320,Object.keys(expByCat).length*(isMobile?32:46)+topPad*2+40);
   const maxFlow=Math.max(totalIncome,totalExpense,1);
 
   const srcKeys=Object.keys(incBySrc).sort((a,b)=>incBySrc[b]-incBySrc[a]);
@@ -2700,34 +2720,36 @@ function buildSankeySVG(incBySrc,expByCat,totalIncome,totalExpense){
     return tb-ta;
   });
 
-  const usableH=H-60;
+  const usableH=H-topPad*2;
+  const rowGap=isMobile?6:8;
+
   // Layout column 1: income sources, sized proportional to amount, stacked
-  let y=30;
+  let y=topPad;
   const srcNodes=srcKeys.map(k=>{
-    const h=Math.max(18,(incBySrc[k]/maxFlow)*usableH);
+    const h=Math.max(isMobile?14:18,(incBySrc[k]/maxFlow)*usableH);
     const n={key:k,y0:y,y1:y+h,val:incBySrc[k]};
-    y+=h+8;
+    y+=h+rowGap;
     return n;
   });
-  const srcTotalH=y-8;
+  const srcTotalH=y-rowGap;
 
-  // Column 2: single "Income" hub, height = sum of sources (or expenses, whichever larger, for visual balance)
-  const hubH=Math.max(40,(totalIncome/maxFlow)*usableH);
-  const hubY0=30+(srcTotalH-hubH)/2;
-  const hub={y0:Math.max(30,hubY0),y1:Math.max(30,hubY0)+hubH};
+  // Column 2: single "Income" hub, height = sum of sources, vertically centered
+  const hubH=Math.max(36,(totalIncome/maxFlow)*usableH);
+  const hubY0=topPad+(srcTotalH-topPad-hubH)/2;
+  const hub={y0:Math.max(topPad,hubY0),y1:Math.max(topPad,hubY0)+hubH};
 
   // Column 3: expense categories, stacked
-  y=30;
+  y=topPad;
   const catNodes=catKeys.map(k=>{
     const tot=Object.values(expByCat[k]).reduce((s,v)=>s+v,0);
-    const h=Math.max(18,(tot/maxFlow)*usableH);
+    const h=Math.max(isMobile?14:18,(tot/maxFlow)*usableH);
     const n={key:k,y0:y,y1:y+h,val:tot};
-    y+=h+8;
+    y+=h+rowGap;
     return n;
   });
-  const catTotalH=y-8;
+  const catTotalH=y-rowGap;
 
-  const totalH=Math.max(srcTotalH,hub.y1,catTotalH)+40;
+  const totalH=Math.max(srcTotalH,hub.y1,catTotalH)+30;
 
   const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');
   const ribbon=(x0,y0a,y0b,x1,y1a,y1b)=>{
@@ -2735,7 +2757,7 @@ function buildSankeySVG(incBySrc,expByCat,totalIncome,totalExpense){
     return`M${x0},${y0a} C${xm},${y0a} ${xm},${y1a} ${x1},${y1a} L${x1},${y1b} C${xm},${y1b} ${xm},${y0b} ${x0},${y0b} Z`;
   };
 
-  let svg=`<svg viewBox="0 0 ${W} ${totalH}" width="100%" style="min-width:640px;font-family:inherit">`;
+  let svg=`<svg viewBox="0 0 ${W} ${totalH}" width="100%" style="display:block;font-family:inherit;height:auto">`;
 
   // Ribbons: source -> hub
   let hubCursor=hub.y0;
@@ -2758,23 +2780,25 @@ function buildSankeySVG(incBySrc,expByCat,totalIncome,totalExpense){
     srcCursor2+=segH;
   });
 
-  // Nodes: sources
+  // Nodes: sources — labels anchored so they stay inside the reserved left margin
   srcNodes.forEach((n,i)=>{
+    const midY=(n.y0+n.y1)/2;
     svg+=`<rect x="${colX[0]}" y="${n.y0}" width="${nodeW}" height="${n.y1-n.y0}" fill="${FLOW_COLORS[i%FLOW_COLORS.length]}" rx="2"/>`;
-    svg+=`<text x="${colX[0]-8}" y="${(n.y0+n.y1)/2}" text-anchor="end" dominant-baseline="middle" font-size="12" font-weight="600" fill="currentColor">${esc(n.key)}</text>`;
-    svg+=`<text x="${colX[0]-8}" y="${(n.y0+n.y1)/2+15}" text-anchor="end" dominant-baseline="middle" font-size="11" fill="currentColor" opacity="0.55">${fmt(n.val)}</text>`;
+    svg+=`<text x="${colX[0]-8}" y="${midY-2}" text-anchor="end" dominant-baseline="middle" font-size="${fontMain}" font-weight="600" fill="currentColor"><title>${esc(n.key)}</title>${esc(truncLabel(n.key,maxLabelChars))}</text>`;
+    svg+=`<text x="${colX[0]-8}" y="${midY-2+fontMain+3}" text-anchor="end" dominant-baseline="middle" font-size="${fontSub}" fill="currentColor" opacity="0.55">${fmt(n.val)}</text>`;
   });
 
-  // Node: hub
+  // Node: hub — label kept below topPad so it never clips at the top edge
   svg+=`<rect x="${colX[1]}" y="${hub.y0}" width="${nodeW}" height="${hub.y1-hub.y0}" fill="var(--ac2,#6d28d9)" rx="2"/>`;
-  svg+=`<text x="${colX[1]+nodeW/2}" y="${hub.y0-10}" text-anchor="middle" font-size="12" font-weight="700" fill="currentColor">Income</text>`;
-  svg+=`<text x="${colX[1]+nodeW/2}" y="${hub.y0-10+15}" text-anchor="middle" font-size="11" fill="currentColor" opacity="0.55">${fmt(totalIncome)}</text>`;
+  svg+=`<text x="${colX[1]+nodeW/2}" y="${Math.max(14,hub.y0-24)}" text-anchor="middle" font-size="${fontMain}" font-weight="700" fill="currentColor">Income</text>`;
+  svg+=`<text x="${colX[1]+nodeW/2}" y="${Math.max(14,hub.y0-24)+fontMain+2}" text-anchor="middle" font-size="${fontSub}" fill="currentColor" opacity="0.55">${fmt(totalIncome)}</text>`;
 
-  // Nodes: categories
+  // Nodes: categories — labels anchored so they stay inside the reserved right margin
   catNodes.forEach((n,i)=>{
+    const midY=(n.y0+n.y1)/2;
     svg+=`<rect x="${colX[2]}" y="${n.y0}" width="${nodeW}" height="${n.y1-n.y0}" fill="${FLOW_COLORS[(i+3)%FLOW_COLORS.length]}" rx="2"/>`;
-    svg+=`<text x="${colX[2]+nodeW+8}" y="${(n.y0+n.y1)/2}" text-anchor="start" dominant-baseline="middle" font-size="12" font-weight="600" fill="currentColor">${esc(n.key)}</text>`;
-    svg+=`<text x="${colX[2]+nodeW+8}" y="${(n.y0+n.y1)/2+15}" text-anchor="start" dominant-baseline="middle" font-size="11" fill="currentColor" opacity="0.55">${fmt(n.val)}</text>`;
+    svg+=`<text x="${colX[2]+nodeW+8}" y="${midY-2}" text-anchor="start" dominant-baseline="middle" font-size="${fontMain}" font-weight="600" fill="currentColor"><title>${esc(n.key)}</title>${esc(truncLabel(n.key,maxLabelChars))}</text>`;
+    svg+=`<text x="${colX[2]+nodeW+8}" y="${midY-2+fontMain+3}" text-anchor="start" dominant-baseline="middle" font-size="${fontSub}" fill="currentColor" opacity="0.55">${fmt(n.val)}</text>`;
   });
 
   svg+='</svg>';
@@ -2792,6 +2816,7 @@ function buildSankeySVG(incBySrc,expByCat,totalIncome,totalExpense){
     });
   });
   tbl+='</tbody></table></div>';
+
 
   return `<div style="overflow-x:auto">${svg}</div>${tbl}`;
 }
