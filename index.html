@@ -352,6 +352,7 @@ textarea{resize:vertical;min-height:60px}
     <div class="ni" onclick="go('reconcile')"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Reconcile</div>
     <div class="nsc">Reports</div>
     <div class="ni" onclick="go('is')"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="9" y1="7" x2="15" y2="7"/><line x1="9" y1="11" x2="15" y2="11"/><line x1="9" y1="15" x2="13" y2="15"/></svg>Income Statement</div>
+    <div class="ni" onclick="go('flowreport')"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M18.7 8l-5.1 5.1-2.8-2.8L7 14"/></svg>Cash Flow Report</div>
     <div class="ni" onclick="go('balances')"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Balance Report</div>
     <div class="ni" onclick="go('tax')"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="12" y2="17"/></svg>Tax Summary</div>
     <div class="nsc">Settings</div>
@@ -359,7 +360,7 @@ textarea{resize:vertical;min-height:60px}
   </div>
   <!-- Version footer -->
   <div style="padding:12px 16px;border-top:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between">
-    <span style="font-size:10px;color:var(--tx3);font-family:'DM Mono',monospace">v2.7.0</span>
+    <span style="font-size:10px;color:var(--tx3);font-family:'DM Mono',monospace">v2.9.3</span>
     <span style="font-size:10px;color:var(--tx3)">Lowe Life</span>
   </div>
 </nav>
@@ -838,6 +839,12 @@ textarea{resize:vertical;min-height:60px}
     <div class="page" id="page-accounts">
       <div id="acc-list">
         <div class="sh mb4"><span class="st">Accounts</span><button class="btn btn-sm bp2" onclick="openM('m-acct')">+ New Account</button></div>
+        <div id="acct-welcome" style="display:none;padding:20px;background:var(--acl);border:1px solid var(--ac2);border-radius:var(--rs);margin-bottom:16px">
+          <div class="fw6 mb3" style="color:var(--ac2);font-size:15px">&#128075; Welcome — let's set up your accounts</div>
+          <p class="txs t2 mb3">Start by adding your bank accounts, credit cards, and any investment accounts you want to track. Then set each one's opening balance and start logging transactions.</p>
+          <p class="txxs t3 mb3">Tip: sign in with Google under Settings &rarr; Cloud Sync to keep your data synced across all your devices.</p>
+          <button class="btn bp2 btn-sm" onclick="openM('m-acct')">+ Add Your First Account</button>
+        </div>
         <div class="g2 mb4">
           <div><h3 class="txxs fw6 t3 mb3" style="text-transform:uppercase;letter-spacing:.06em">Bank &amp; Cash</h3><div class="rg" id="ca-list"></div></div>
           <div><h3 class="txxs fw6 t3 mb3" style="text-transform:uppercase;letter-spacing:.06em">Credit Cards</h3><div class="rg" id="cc-list"></div></div>
@@ -945,6 +952,35 @@ textarea{resize:vertical;min-height:60px}
       <!-- sticky horizontal scroll wrapper for wide multi-column tables -->
       <div class="card p0" style="overflow-x:auto" id="is-out">
         <div class="em">Set dates above and click Run Report</div>
+      </div>
+    </div>
+
+    <!-- CASH FLOW REPORT (Sankey) -->
+    <div class="page" id="page-flowreport">
+      <p class="txs t2 mb4" style="max-width:640px">See how money flows from your income sources through categories and subcategories. Pick a date range to include.</p>
+      <div class="card mb4">
+        <div class="fg">
+          <div class="ig">
+            <label>From</label>
+            <div class="fx g8"><select id="fr-from-m"></select><select id="fr-from-y"></select></div>
+          </div>
+          <div class="ig">
+            <label>To</label>
+            <div class="fx g8"><select id="fr-to-m"></select><select id="fr-to-y"></select></div>
+          </div>
+        </div>
+        <div class="fx g8 mt3" style="flex-wrap:wrap">
+          <button class="btn bs btn-sm" onclick="frSetRange('this-month')">This Month</button>
+          <button class="btn bs btn-sm" onclick="frSetRange('last-3')">Last 3 Months</button>
+          <button class="btn bs btn-sm" onclick="frSetRange('last-6')">Last 6 Months</button>
+          <button class="btn bs btn-sm" onclick="frSetRange('ytd')">Year to Date</button>
+          <button class="btn bs btn-sm" onclick="frSetRange('last-12')">Last 12 Months</button>
+          <button class="btn bp2 btn-sm" onclick="rFlowReport()" style="margin-left:auto">Run Report</button>
+        </div>
+      </div>
+      <div class="g2 mb4" id="fr-stats"></div>
+      <div class="card" id="fr-out" style="overflow-x:auto">
+        <div class="em">Pick a range above and click Run Report</div>
       </div>
     </div>
 
@@ -1101,7 +1137,7 @@ textarea{resize:vertical;min-height:60px}
             </div>
             <div style="padding:8px 10px;background:var(--sf2);border-radius:var(--rs);display:flex;align-items:center;justify-content:space-between">
               <span class="txxs t3">Current version</span>
-              <span style="font-family:'DM Mono',monospace;font-size:12px;font-weight:500;color:var(--ac2)">v2.7.0</span>
+              <span style="font-family:'DM Mono',monospace;font-size:12px;font-weight:500;color:var(--ac2)">v2.9.3</span>
             </div>
             <p class="txxs t3 mt3">Export your data before receiving an update. Save the new file to the same path and your data loads automatically. If the path changes, use Import JSON.</p>
           </div>
@@ -1210,6 +1246,43 @@ textarea{resize:vertical;min-height:60px}
   </div>
 </div>
 
+<div class="mbd" id="m-recur">
+  <div class="modal"><div class="mh"><span class="mt">Edit Recurring Charge</span><button class="cx" onclick="closeM('m-recur')"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+    <div class="mb2">
+      <div style="padding:9px 12px;background:var(--sf2);border-radius:var(--rs);margin-bottom:12px">
+        <span class="txxs t3">Editing the rule only. Transactions already posted from it stay unchanged in your ledger.</span>
+      </div>
+      <div class="ig"><label>Description</label><input type="text" id="rc-de"/></div>
+      <div class="fg">
+        <div class="ig"><label>Amount</label><input type="number" id="rc-am" step="0.01" min="0"/></div>
+        <div class="ig"><label>Frequency</label>
+          <select id="rc-freq">
+            <option value="weekly">Weekly</option>
+            <option value="biweekly">Every 2 weeks</option>
+            <option value="monthly">Monthly</option>
+            <option value="quarterly">Quarterly</option>
+            <option value="annually">Annually</option>
+          </select>
+        </div>
+      </div>
+      <div class="fg">
+        <div class="ig"><label>Category</label><select id="rc-cat"></select></div>
+        <div class="ig"><label>Subcategory</label><select id="rc-sub"></select></div>
+      </div>
+      <div class="ig"><label>Account</label><select id="rc-acct"></select></div>
+      <div class="ig"><label>End Date (blank = indefinite)</label><input type="date" id="rc-end"/></div>
+      <div class="ig"><label>Notes</label><textarea id="rc-nt"></textarea></div>
+    </div>
+    <div class="mf" style="justify-content:space-between">
+      <button class="btn bd3" onclick="deleteRecurTemplate()">Delete</button>
+      <div class="fx g8">
+        <button class="btn bg2" onclick="closeM('m-recur')">Cancel</button>
+        <button class="btn bp2" onclick="saveRecurEdit()">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="mbd" id="m-due">
   <div class="modal"><div class="mh"><span class="mt">Add Due Date Reminder</span><button class="cx" onclick="closeM('m-due')"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
     <div class="mb2">
@@ -1222,20 +1295,38 @@ textarea{resize:vertical;min-height:60px}
 </div>
 
 <script>
+// ═══════════════ SAFE STORAGE (falls back to in-memory if real localStorage is blocked) ═══════════════
+// Some browsers restrict localStorage when a page is opened directly as a file (file://)
+// instead of served over http/https, or in strict private-browsing modes. Rather than
+// crashing the whole app on startup, detect that up front and use an in-memory
+// substitute so every feature still works for testing — it just won't persist
+// between reloads until the file is served over http:// or https:// (e.g. GitHub Pages).
+const localStorage=(function(){
+  try{
+    const testKey='__llb_storage_test__';
+    window.localStorage.setItem(testKey,'1');
+    window.localStorage.removeItem(testKey);
+    return window.localStorage; // real localStorage works, use it
+  }catch(e){
+    console.warn('Real localStorage is unavailable in this context (likely opened via file:// or private browsing). Using in-memory storage for this session — nothing will persist after you close or reload the page. Serve this file over http/https (e.g. GitHub Pages, or `python3 -m http.server`) for normal saving.');
+    const mem={};
+    return{
+      getItem:k=>(k in mem?mem[k]:null),
+      setItem:(k,v)=>{mem[k]=String(v);},
+      removeItem:k=>{delete mem[k];},
+      clear:()=>{Object.keys(mem).forEach(k=>delete mem[k]);}
+    };
+  }
+})();
+
 // ═══════════════ DATA ═══════════════
-const APP_VERSION='2.7.0'; // ← update this when you receive a new version from Claude
-const DA=[
-  {name:"Stewart's Checking",type:"Cash"},{name:"Stewart's - Savings",type:"Cash"},
-  {name:"Bank of America - Checking",type:"Cash"},{name:"Bank of America - Savings",type:"Cash"},
-  {name:"Capital One 360 Savings",type:"Cash"},{name:"Capital One - Escrow Account",type:"Cash"},
-  {name:"Middlesex - Combined",type:"Cash"},{name:"Cash/Venmo",type:"Cash"},
-  {name:"Capital One - VentureX",type:"Credit card"},{name:"Capital One - Venture",type:"Credit card"},
-  {name:"Bank of America CC",type:"Credit card"},{name:"Banana Republic",type:"Credit card"},
-  {name:"Middlesex CC",type:"Credit card"},{name:"Macy's",type:"Credit card"},
-  {name:"Ameriprise",type:"Investment"}
-];
+const APP_VERSION='2.9.3'; // ← update this when you receive a new version from Claude
+// New users start with NO accounts — they add their own.
+// Existing users are unaffected: their accounts load from localStorage/cloud, and this
+// array is only ever used as a fallback when storage is completely empty.
+const DA=[];
 const DC={
-  Income:{Wages:["Paycheck - David","Paycheck - Molly","Bonus","Commission","Other"],Other:["Interest income","Dividends","Gifts","Refunds","Other"]},
+  Income:{Wages:["Paycheck","Second paycheck","Bonus","Commission","Other"],Other:["Interest income","Dividends","Gifts","Refunds","Other"]},
   Expenses:{Debt:["Other"],Entertainment:["Books","Concerts/shows","Games","Hobbies","Movies","Music","Outdoor activities","Photography","Sports","Theater/plays","TV","Other"],Everyday:["Groceries","Restaurants/bars","Personal supplies","Clothes","Laundry/dry cleaning","Hair/beauty","Subscriptions","Other"],Gifts:["Gifts","Donations (charity)","Other"],"Health/medical":["Doctors/dental/vision","Specialty care","Pharmacy","Emergency","Other"],Home:["Rent/mortgage","Property taxes","Furnishings","Lawn/garden","Supplies","Maintenance","Improvements","Moving","Other"],Insurance:["Car","Health","Home","Life","Other"],Transportation:["Fuel","Car payments","Repairs","Registration/license","Supplies","Public transit","Uber/Lyft/taxi","Other"],Travel:["Airfare","Hotels","Food","Transportation","Entertainment","Other"],"Babies/Kids":["General","Clothes & Accessories","Feeding","Nursery & Decor","Health & Safety","Daycare","Toys & Books","Activities","College"],Dog:["Food","Toys/supplies/treats","Vet/health","Insurance","Breeder cost","Grooming","Daycare","Other"],Utilities:["Phone","TV","Internet","Electricity","Heat/gas","Water","Trash","Other"],Reimbursable:["Reimbursables"]}
 };
 
@@ -1244,6 +1335,7 @@ let CATS=JSON.parse(localStorage.getItem('llb_c')||'null')||DC;
 let txns=JSON.parse(localStorage.getItem('llb_t')||'[]');
 let obs=JSON.parse(localStorage.getItem('llb_o')||'{}');
 let dues=JSON.parse(localStorage.getItem('llb_d')||'[]');
+let recurTemplates=JSON.parse(localStorage.getItem('llb_recur')||'[]');
 let eid=null,pst=null,psc=null,dOff=0,cfOff=0;
 
 function save(){localStorage.setItem('llb_a',JSON.stringify(ACCTS));localStorage.setItem('llb_c',JSON.stringify(CATS));localStorage.setItem('llb_t',JSON.stringify(txns));localStorage.setItem('llb_o',JSON.stringify(obs));localStorage.setItem('llb_d',JSON.stringify(dues));syncToCloud();}
@@ -1260,8 +1352,8 @@ function openM(id){if(id==='m-budget')initBudgetModal();document.getElementById(
 function closeM(id){document.getElementById(id).classList.remove('open');}
 
 // ═══════════════ NAV ═══════════════
-const PTITLES={dashboard:'Dashboard',cashflow:'Cash Flow',goals:'Financial Goals',transactions:'All Transactions',add:'Add Transaction',recurring:'Recurring Charges',transfer:'Transfers & Payments',accounts:'Accounts',duedates:'Due Dates & Reminders',reconcile:'Reconcile',is:'Income Statement',balances:'Balance Report',tax:'Tax Summary',settings:'Settings'};
-const PORDER=['dashboard','cashflow','goals','transactions','add','recurring','transfer','accounts','duedates','reconcile','is','balances','tax','settings'];
+const PTITLES={dashboard:'Dashboard',cashflow:'Cash Flow',goals:'Financial Goals',transactions:'All Transactions',add:'Add Transaction',recurring:'Recurring Charges',transfer:'Transfers & Payments',accounts:'Accounts',duedates:'Due Dates & Reminders',reconcile:'Reconcile',is:'Income Statement',flowreport:'Cash Flow Report',balances:'Balance Report',tax:'Tax Summary',settings:'Settings'};
+const PORDER=['dashboard','cashflow','goals','transactions','add','recurring','transfer','accounts','duedates','reconcile','is','flowreport','balances','tax','settings'];
 function go(id){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
@@ -1288,6 +1380,16 @@ function go(id){
   if(id==='transfer')rTrRec();
   if(id==='goals')rGoals();
   if(id==='recurring')rRecurring();
+  if(id==='flowreport'){
+    const alreadyInit=document.getElementById('fr-from-y').dataset.init==='1';
+    initFlowReportSelects();
+    if(!alreadyInit){
+      document.getElementById('fr-from-y').dataset.init='1';
+      frSetRange('last-3'); // sets real dropdown values AND calls rFlowReport()
+    }else{
+      rFlowReport();
+    }
+  }
   if(id==='settings'){
     // Reset to General tab on navigate
     document.querySelectorAll('#page-settings .tab').forEach((t,i)=>t.classList.toggle('active',i===0));
@@ -1529,13 +1631,24 @@ function addTxn(type){
   }
 
   const isRecur=document.getElementById(p+'-recur')?.checked;
-  const recurData=isRecur?{freq:document.getElementById(p+'-freq')?.value||'monthly',endDate:document.getElementById(p+'-rend')?.value||null,lastPosted:date}:null;
+  let recurId=null;
+  if(isRecur){
+    // Create a recurring TEMPLATE (a rule). It lives separately and never duplicates.
+    recurId=gid();
+    recurTemplates.push({
+      id:recurId,desc,amount,cat,sub,acct,notes,type:txnType,
+      freq:document.getElementById(p+'-freq')?.value||'monthly',
+      endDate:document.getElementById(p+'-rend')?.value||null,
+      lastPosted:date,startDate:date
+    });
+    saveRecur();
+  }
 
   const isSplit=type==='expense'&&document.getElementById('e-split')?.checked;
   const splitData=isSplit?getSplitData():null;
 
-  // Post the main expense transaction
-  txns.push({id:gid(),date,amount,desc,cat,sub,acct,notes,type:txnType,recurring:recurData,split:splitData});
+  // Post the transaction itself as a PLAIN transaction (never carries a recurring flag)
+  txns.push({id:gid(),date,amount,desc,cat,sub,acct,notes,type:txnType,split:splitData,fromRecur:recurId});
 
   // For splits: post an offsetting inflow for each reimbursement into the deposit account
   // This is NOT income — it's an expense offset (negative expense / refund-type)
@@ -1618,64 +1731,151 @@ function monthlyEquiv(t){
   return map[freq]||t.amount;
 }
 
+// ── Recurring templates: a RULE, stored separately from the transactions it generates ──
+// One template = one row on the Recurring page, forever. Posting spawns plain transactions.
+
+function saveRecur(){localStorage.setItem('llb_recur',JSON.stringify(recurTemplates));syncToCloud();}
+
+// One-time migration: convert old inline txn.recurring flags into proper templates
+function migrateRecurring(){
+  if(localStorage.getItem('llb_recur_migrated')==='1')return;
+  const seen=new Set();
+  txns.forEach(t=>{
+    if(t.recurring){
+      // Dedupe: the old bug created many copies of the same rule
+      const key=[t.desc,t.amount,t.acct,t.recurring.freq,t.type].join('|');
+      if(!seen.has(key)){
+        seen.add(key);
+        recurTemplates.push({
+          id:gid(),desc:t.desc,amount:t.amount,cat:t.cat,sub:t.sub||'',acct:t.acct,
+          notes:t.notes||'',type:t.type,freq:t.recurring.freq||'monthly',
+          endDate:t.recurring.endDate||null,
+          lastPosted:t.recurring.lastPosted||t.date,
+          startDate:t.date
+        });
+      }
+      delete t.recurring; // the transaction becomes a plain, normal transaction
+    }
+  });
+  localStorage.setItem('llb_recur_migrated','1');
+  if(recurTemplates.length)saveRecur();
+  save();
+}
+
+function nextDueFromTemplate(r){
+  const last=new Date((r.lastPosted||r.startDate)+'T00:00:00');
+  const freq=r.freq||'monthly';
+  const next=new Date(last);
+  if(freq==='monthly'){next.setMonth(next.getMonth()+1);}
+  else if(freq==='quarterly'){next.setMonth(next.getMonth()+3);}
+  else if(freq==='annually'){next.setFullYear(next.getFullYear()+1);}
+  else{next.setDate(next.getDate()+FREQ_DAYS[freq]);}
+  return next.toISOString().split('T')[0];
+}
+
+function monthlyEquivTemplate(r){
+  const map={weekly:r.amount*52/12,biweekly:r.amount*26/12,monthly:r.amount,quarterly:r.amount/3,annually:r.amount/12};
+  return map[r.freq]||r.amount;
+}
+
 function rRecurring(){
-  const recs=txns.filter(t=>t.recurring&&(!t.recurring.endDate||t.recurring.endDate>=new Date().toISOString().split('T')[0]));
+  const today=new Date().toISOString().split('T')[0];
+  const recs=recurTemplates.filter(r=>!r.endDate||r.endDate>=today);
   document.getElementById('rec-count').textContent=recs.length;
-  const monthlyTotal=recs.filter(t=>t.type==='expense'||t.type==='refund').reduce((s,t)=>s+monthlyEquiv(t),0);
+  const monthlyTotal=recs.filter(r=>r.type==='expense'||r.type==='refund').reduce((s,r)=>s+monthlyEquivTemplate(r),0);
   document.getElementById('rec-monthly-total').textContent=fmt(monthlyTotal)+'/mo';
 
-  const today=new Date().toISOString().split('T')[0];
   const tbody=document.getElementById('rec-body');
   tbody.innerHTML='';
 
   if(!recs.length){
     const tr=document.createElement('tr');const td=document.createElement('td');
-    td.colSpan=8;td.className='em';td.textContent='No recurring transactions yet. Add one using the toggle on the Add Transaction page.';
+    td.colSpan=8;td.className='em';td.textContent='No recurring charges yet. Add one using the recurring toggle on the Add Transaction page.';
     tr.appendChild(td);tbody.appendChild(tr);return;
   }
 
-  recs.sort((a,b)=>{const na=nextDueDate(a)||'',nb=nextDueDate(b)||'';return na.localeCompare(nb);}).forEach(t=>{
-    const next=nextDueDate(t)||'—';
-    const overdue=next<=today&&next!=='—';
-    const daysUntil=next==='—'?null:Math.round((new Date(next+'T00:00:00')-new Date())/(1000*60*60*24));
-    const dueBadge=overdue?'<span class="badge brd">Overdue</span>':daysUntil<=7?`<span class="badge byw">In ${daysUntil}d</span>`:`<span class="badge bgr">${next}</span>`;
-    const isInc=t.type==='income';
+  recs.sort((a,b)=>nextDueFromTemplate(a).localeCompare(nextDueFromTemplate(b))).forEach(r=>{
+    const next=nextDueFromTemplate(r);
+    const overdue=next<=today;
+    const daysUntil=Math.round((new Date(next+'T00:00:00')-new Date())/(1000*60*60*24));
+    const dueBadge=overdue?'<span class="badge brd">Due now</span>':daysUntil<=7?`<span class="badge byw">In ${daysUntil}d</span>`:`<span class="badge bgr">${next}</span>`;
+    const isInc=r.type==='income';
+    const postedCount=txns.filter(t=>t.fromRecur===r.id).length;
     const tr=document.createElement('tr');
+    tr.style.cursor='pointer';
     tr.innerHTML=`
-      <td class="tdm">${t.desc}</td>
-      <td><span class="chip ${isCC(t.acct)?'ccc':isInv(t.acct)?'civ':'cca'}">${t.acct}</span></td>
-      <td class="txs t2">${FREQ_LABELS[t.recurring.freq]||t.recurring.freq}</td>
-      <td class="${isInc?'ap2':'an'} mono">${isInc?'+':''}${fmt(t.amount)}</td>
-      <td class="txs t2">${t.recurring.lastPosted||t.date}</td>
+      <td class="tdm">${r.desc}${postedCount?`<div class="txxs t3">${postedCount} posted</div>`:''}</td>
+      <td><span class="chip ${isCC(r.acct)?'ccc':isInv(r.acct)?'civ':'cca'}">${r.acct}</span></td>
+      <td class="txs t2">${FREQ_LABELS[r.freq]||r.freq}</td>
+      <td class="${isInc?'ap2':'an'} mono">${isInc?'+':''}${fmt(r.amount)}</td>
+      <td class="txs t2">${r.lastPosted||'Never'}</td>
       <td>${dueBadge}</td>
-      <td class="txs t2">${t.recurring.endDate||'Indefinite'}</td>
+      <td class="txs t2">${r.endDate||'Indefinite'}</td>
       <td>
         <div class="fx g8 ic">
-          <button class="btn bp2 btn-xs" onclick="postRecurring('${t.id}')">Post</button>
-          <button class="btn bg2 btn-xs" onclick="stopRecurring('${t.id}')">Stop</button>
+          <button class="btn bp2 btn-xs" onclick="event.stopPropagation();postRecurring('${r.id}')">Post</button>
+          <button class="btn bg2 btn-xs" onclick="event.stopPropagation();openRecurEdit('${r.id}')">Edit</button>
         </div>
       </td>`;
+    tr.onclick=()=>openRecurEdit(r.id);
     tbody.appendChild(tr);
   });
 }
 
 function postRecurring(id){
-  const orig=txns.find(x=>x.id===id);if(!orig)return;
-  const next=nextDueDate(orig);
-  if(!next){alert('Could not calculate next due date.');return;}
-  if(!confirm(`Post "${orig.desc}" for ${fmt(orig.amount)} on ${next}?`))return;
-  // Create new transaction for the next occurrence
-  txns.push({...orig,id:gid(),date:next,recurring:{...orig.recurring,lastPosted:next}});
-  // Update lastPosted on original template
-  orig.recurring.lastPosted=next;
-  save();rRecurring();
-  toast(`"${orig.desc}" posted for ${next} \u2713`);
+  const r=recurTemplates.find(x=>x.id===id);if(!r)return;
+  const next=nextDueFromTemplate(r);
+  if(!confirm(`Post "${r.desc}" for ${fmt(r.amount)} on ${next}?\n\nThis adds one transaction to your ledger. The recurring charge itself stays on this page.`))return;
+  // Create a PLAIN transaction — no recurring flag, so it never shows up on this page
+  txns.push({
+    id:gid(),date:next,amount:r.amount,desc:r.desc,cat:r.cat,sub:r.sub,
+    acct:r.acct,notes:r.notes,type:r.type,fromRecur:r.id,reconciled:false
+  });
+  r.lastPosted=next;
+  save();saveRecur();rRecurring();rDash();
+  toast(`"${r.desc}" posted for ${next} \u2713`);
 }
 
-function stopRecurring(id){
-  const t=txns.find(x=>x.id===id);if(!t)return;
-  if(!confirm(`Stop recurring for "${t.desc}"? It will be removed from this list but the original transaction is kept.`))return;
-  t.recurring=null;save();rRecurring();toast('Recurring stopped');
+let recurEditId=null;
+function openRecurEdit(id){
+  const r=recurTemplates.find(x=>x.id===id);if(!r)return;
+  recurEditId=id;
+  document.getElementById('rc-de').value=r.desc;
+  document.getElementById('rc-am').value=r.amount;
+  document.getElementById('rc-freq').value=r.freq;
+  document.getElementById('rc-end').value=r.endDate||'';
+  document.getElementById('rc-nt').value=r.notes||'';
+  const catTop=(r.type==='income'||r.type==='repayment')?'Income':'Expenses';
+  const rc=document.getElementById('rc-cat'),rs=document.getElementById('rc-sub');
+  fCS(rc,catTop);rc.value=r.cat;rc.onchange=()=>fSS(rs,rc,catTop);fSS(rs,rc,catTop);rs.value=r.sub||'';
+  const ra=document.getElementById('rc-acct');
+  fAS(ra,['Cash','Credit card'],false);ra.value=r.acct;
+  openM('m-recur');
+}
+
+function saveRecurEdit(){
+  const r=recurTemplates.find(x=>x.id===recurEditId);if(!r){closeM('m-recur');return;}
+  const amt=parseFloat(document.getElementById('rc-am').value);
+  const desc=document.getElementById('rc-de').value.trim();
+  if(!desc||isNaN(amt)||amt<=0){alert('Enter a description and a valid amount.');return;}
+  r.desc=desc;r.amount=amt;
+  r.freq=document.getElementById('rc-freq').value;
+  r.endDate=document.getElementById('rc-end').value||null;
+  r.notes=document.getElementById('rc-nt').value.trim();
+  r.cat=document.getElementById('rc-cat').value;
+  r.sub=document.getElementById('rc-sub').value;
+  r.acct=document.getElementById('rc-acct').value;
+  saveRecur();rRecurring();closeM('m-recur');
+  toast('Recurring charge updated \u2713');
+}
+
+function deleteRecurTemplate(){
+  const r=recurTemplates.find(x=>x.id===recurEditId);if(!r)return;
+  const posted=txns.filter(t=>t.fromRecur===r.id).length;
+  if(!confirm(`Delete the recurring charge "${r.desc}"?\n\nIt will stop appearing on this page. ${posted?`The ${posted} transaction${posted!==1?'s':''} already posted from it will be kept in your ledger.`:''}\n\nThis cannot be undone.`))return;
+  recurTemplates=recurTemplates.filter(x=>x.id!==recurEditId);
+  saveRecur();rRecurring();closeM('m-recur');
+  toast('Recurring charge deleted');
 }
 
 // ═══════════════ TRANSFERS / PAYMENTS / INVESTMENTS ═══════════════
@@ -1873,6 +2073,10 @@ function rAccts(){
 
   const active=ACCTS.filter(a=>!isAcctArchived(a.name));
   const archived=ACCTS.filter(a=>isAcctArchived(a.name));
+
+  // First-run welcome for brand-new users with no accounts yet
+  const welcome=document.getElementById('acct-welcome');
+  if(welcome)welcome.style.display=ACCTS.length?'none':'';
 
   active.forEach(a=>{
     const el=document.createElement('div');
@@ -2370,6 +2574,227 @@ function isVarCell(curr,prev,isIncome){
 
 // Keep legacy togCmp wired (the old checkbox may still exist in cached pages)
 function togCmp(){isModeCh();}
+
+// ═══════════════ CASH FLOW REPORT (SANKEY) ═══════════════
+const MONTH_NAMES=['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+// Populate the Month + Year dropdown pairs once (covers the last 6 years through this year)
+function initFlowReportSelects(){
+  const fm=document.getElementById('fr-from-m'),fy=document.getElementById('fr-from-y');
+  const tm=document.getElementById('fr-to-m'),ty=document.getElementById('fr-to-y');
+  if(!fm||fm.options.length)return; // already populated
+  const nowY=new Date().getFullYear();
+  [fm,tm].forEach(sel=>{
+    MONTH_NAMES.forEach((name,i)=>{
+      const o=document.createElement('option');o.value=String(i+1).padStart(2,'0');o.textContent=name;sel.appendChild(o);
+    });
+  });
+  [fy,ty].forEach(sel=>{
+    for(let y=nowY-6;y<=nowY;y++){
+      const o=document.createElement('option');o.value=String(y);o.textContent=String(y);sel.appendChild(o);
+    }
+  });
+}
+
+function frGetYM(prefix){
+  const m=document.getElementById(prefix+'-m').value;
+  const y=document.getElementById(prefix+'-y').value;
+  return y&&m?`${y}-${m}`:'';
+}
+function frSetYM(prefix,ym){
+  const[y,m]=ym.split('-');
+  document.getElementById(prefix+'-y').value=y;
+  document.getElementById(prefix+'-m').value=m;
+}
+
+function frSetRange(preset){
+  initFlowReportSelects();
+  const now=new Date();
+  const ym=d=>d.toISOString().slice(0,7);
+  let from,to=ym(now);
+  if(preset==='this-month'){from=ym(now);}
+  else if(preset==='last-3'){const d=new Date(now.getFullYear(),now.getMonth()-2,1);from=ym(d);}
+  else if(preset==='last-6'){const d=new Date(now.getFullYear(),now.getMonth()-5,1);from=ym(d);}
+  else if(preset==='last-12'){const d=new Date(now.getFullYear(),now.getMonth()-11,1);from=ym(d);}
+  else if(preset==='ytd'){from=now.getFullYear()+'-01';}
+  frSetYM('fr-from',from);
+  frSetYM('fr-to',to);
+  rFlowReport();
+}
+
+const FLOW_COLORS=['#6d28d9','#9333ea','#c026d3','#db2777','#e11d48','#ea580c','#d97706','#65a30d','#059669','#0891b2','#2563eb','#4f46e5'];
+
+function rFlowReport(){
+ try{
+  initFlowReportSelects();
+  const out=document.getElementById('fr-out');
+  const stats=document.getElementById('fr-stats');
+  const fromM=frGetYM('fr-from');
+  const toM=frGetYM('fr-to');
+  if(!fromM||!toM){out.innerHTML='<div class="em">Pick a From and To month above, then click Run Report.</div>';stats.innerHTML='';return;}
+  const from=fromM+'-01',to=toM+'-31';
+  if(from>to){out.innerHTML='<div class="em">"From" must be before "To".</div>';stats.innerHTML='';return;}
+
+  const inRange=txns.filter(t=>t.date>=from&&t.date<=to);
+  const incomeTxns=inRange.filter(t=>t.type==='income'||t.type==='repayment');
+  const expenseTxns=inRange.filter(t=>t.type==='expense'||t.type==='refund');
+
+  // ── Build income sources (by category) ──
+  const incBySrc={};
+  incomeTxns.forEach(t=>{
+    const signed=t.type==='repayment'?-t.amount:t.amount;
+    incBySrc[t.cat]=(incBySrc[t.cat]||0)+signed;
+  });
+  Object.keys(incBySrc).forEach(k=>{if(incBySrc[k]<=0)delete incBySrc[k];});
+
+  // ── Build expense categories + subcategories ──
+  const expByCat={};
+  expenseTxns.forEach(t=>{
+    const signed=t.type==='refund'?-t.amount:t.amount;
+    if(!expByCat[t.cat])expByCat[t.cat]={};
+    const sk=t.sub||'Other';
+    expByCat[t.cat][sk]=(expByCat[t.cat][sk]||0)+signed;
+  });
+  Object.keys(expByCat).forEach(cat=>{
+    Object.keys(expByCat[cat]).forEach(sk=>{if(expByCat[cat][sk]<=0)delete expByCat[cat][sk];});
+    if(Object.keys(expByCat[cat]).length===0)delete expByCat[cat];
+  });
+
+  const totalIncome=Object.values(incBySrc).reduce((s,v)=>s+v,0);
+  const totalExpense=Object.values(expByCat).reduce((s,cat)=>s+Object.values(cat).reduce((s2,v)=>s2+v,0),0);
+  const netSaved=totalIncome-totalExpense;
+  const savingsRate=totalIncome>0?(netSaved/totalIncome*100):0;
+
+  stats.innerHTML=`
+    <div class="card"><div class="sl">Total Income</div><div class="sv ap2">${fmt(totalIncome)}</div><div class="ss">${fromM} \u2192 ${toM}</div></div>
+    <div class="card"><div class="sl">Total Spent</div><div class="sv an">${fmt(totalExpense)}</div><div class="ss">Across all categories</div></div>
+    <div class="card"><div class="sl">Net Saved</div><div class="sv ${netSaved>=0?'ap2':'an'}">${fmt(netSaved)}</div><div class="ss">Income minus spending</div></div>
+    <div class="card"><div class="sl">Savings Rate</div><div class="sv">${savingsRate.toFixed(1)}%</div><div class="ss">Of total income</div></div>`;
+
+  if(totalIncome===0&&totalExpense===0){
+    out.innerHTML='<div class="em">No income or expense transactions in this date range.</div>';
+    return;
+  }
+
+  out.innerHTML=buildSankeySVG(incBySrc,expByCat,totalIncome,totalExpense);
+ }catch(e){
+   console.error('Cash Flow Report failed:',e);
+   const out=document.getElementById('fr-out');
+   if(out)out.innerHTML=`<div class="em" style="color:var(--rd)">Something went wrong building this report: ${e.message}. Please check the browser console for details.</div>`;
+ }
+}
+
+// Builds a 3-column Sankey: Income Sources -> "Income" hub -> Expense Categories,
+// with a 4th column of subcategories nested under each expense category on hover/tap.
+function buildSankeySVG(incBySrc,expByCat,totalIncome,totalExpense){
+  const W=Math.max(900,window.innerWidth>1024?1000:900);
+  const H=Math.max(420,Object.keys(expByCat).length*46+120);
+  const colX=[40,W*0.32,W*0.68,W-40];
+  const nodeW=14;
+  const maxFlow=Math.max(totalIncome,totalExpense,1);
+
+  const srcKeys=Object.keys(incBySrc).sort((a,b)=>incBySrc[b]-incBySrc[a]);
+  const catKeys=Object.keys(expByCat).sort((a,b)=>{
+    const ta=Object.values(expByCat[a]).reduce((s,v)=>s+v,0);
+    const tb=Object.values(expByCat[b]).reduce((s,v)=>s+v,0);
+    return tb-ta;
+  });
+
+  const usableH=H-60;
+  // Layout column 1: income sources, sized proportional to amount, stacked
+  let y=30;
+  const srcNodes=srcKeys.map(k=>{
+    const h=Math.max(18,(incBySrc[k]/maxFlow)*usableH);
+    const n={key:k,y0:y,y1:y+h,val:incBySrc[k]};
+    y+=h+8;
+    return n;
+  });
+  const srcTotalH=y-8;
+
+  // Column 2: single "Income" hub, height = sum of sources (or expenses, whichever larger, for visual balance)
+  const hubH=Math.max(40,(totalIncome/maxFlow)*usableH);
+  const hubY0=30+(srcTotalH-hubH)/2;
+  const hub={y0:Math.max(30,hubY0),y1:Math.max(30,hubY0)+hubH};
+
+  // Column 3: expense categories, stacked
+  y=30;
+  const catNodes=catKeys.map(k=>{
+    const tot=Object.values(expByCat[k]).reduce((s,v)=>s+v,0);
+    const h=Math.max(18,(tot/maxFlow)*usableH);
+    const n={key:k,y0:y,y1:y+h,val:tot};
+    y+=h+8;
+    return n;
+  });
+  const catTotalH=y-8;
+
+  const totalH=Math.max(srcTotalH,hub.y1,catTotalH)+40;
+
+  const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');
+  const ribbon=(x0,y0a,y0b,x1,y1a,y1b)=>{
+    const xm=(x0+x1)/2;
+    return`M${x0},${y0a} C${xm},${y0a} ${xm},${y1a} ${x1},${y1a} L${x1},${y1b} C${xm},${y1b} ${xm},${y0b} ${x0},${y0b} Z`;
+  };
+
+  let svg=`<svg viewBox="0 0 ${W} ${totalH}" width="100%" style="min-width:640px;font-family:inherit">`;
+
+  // Ribbons: source -> hub
+  let hubCursor=hub.y0;
+  srcNodes.forEach((n,i)=>{
+    const frac=totalIncome>0?n.val/totalIncome:0;
+    const segH=frac*(hub.y1-hub.y0);
+    const path=ribbon(colX[0]+nodeW,n.y0,n.y1,colX[1],hubCursor,hubCursor+segH);
+    svg+=`<path d="${path}" fill="${FLOW_COLORS[i%FLOW_COLORS.length]}" opacity="0.35"><title>${esc(n.key)} \u2192 Income: ${fmt(n.val)}</title></path>`;
+    hubCursor+=segH;
+  });
+
+  // Ribbons: hub -> expense categories (only the portion of income that was spent, proportionally)
+  let srcCursor2=hub.y0;
+  const spentFracOfIncome=totalIncome>0?Math.min(1,totalExpense/totalIncome):1;
+  catNodes.forEach((n,i)=>{
+    const frac=totalExpense>0?n.val/totalExpense:0;
+    const segH=frac*(hub.y1-hub.y0)*spentFracOfIncome;
+    const path=ribbon(colX[1]+nodeW,srcCursor2,srcCursor2+segH,colX[2],n.y0,n.y1);
+    svg+=`<path d="${path}" fill="${FLOW_COLORS[(i+3)%FLOW_COLORS.length]}" opacity="0.35"><title>Income \u2192 ${esc(n.key)}: ${fmt(n.val)}</title></path>`;
+    srcCursor2+=segH;
+  });
+
+  // Nodes: sources
+  srcNodes.forEach((n,i)=>{
+    svg+=`<rect x="${colX[0]}" y="${n.y0}" width="${nodeW}" height="${n.y1-n.y0}" fill="${FLOW_COLORS[i%FLOW_COLORS.length]}" rx="2"/>`;
+    svg+=`<text x="${colX[0]-8}" y="${(n.y0+n.y1)/2}" text-anchor="end" dominant-baseline="middle" font-size="12" font-weight="600" fill="currentColor">${esc(n.key)}</text>`;
+    svg+=`<text x="${colX[0]-8}" y="${(n.y0+n.y1)/2+15}" text-anchor="end" dominant-baseline="middle" font-size="11" fill="currentColor" opacity="0.55">${fmt(n.val)}</text>`;
+  });
+
+  // Node: hub
+  svg+=`<rect x="${colX[1]}" y="${hub.y0}" width="${nodeW}" height="${hub.y1-hub.y0}" fill="var(--ac2,#6d28d9)" rx="2"/>`;
+  svg+=`<text x="${colX[1]+nodeW/2}" y="${hub.y0-10}" text-anchor="middle" font-size="12" font-weight="700" fill="currentColor">Income</text>`;
+  svg+=`<text x="${colX[1]+nodeW/2}" y="${hub.y0-10+15}" text-anchor="middle" font-size="11" fill="currentColor" opacity="0.55">${fmt(totalIncome)}</text>`;
+
+  // Nodes: categories
+  catNodes.forEach((n,i)=>{
+    svg+=`<rect x="${colX[2]}" y="${n.y0}" width="${nodeW}" height="${n.y1-n.y0}" fill="${FLOW_COLORS[(i+3)%FLOW_COLORS.length]}" rx="2"/>`;
+    svg+=`<text x="${colX[2]+nodeW+8}" y="${(n.y0+n.y1)/2}" text-anchor="start" dominant-baseline="middle" font-size="12" font-weight="600" fill="currentColor">${esc(n.key)}</text>`;
+    svg+=`<text x="${colX[2]+nodeW+8}" y="${(n.y0+n.y1)/2+15}" text-anchor="start" dominant-baseline="middle" font-size="11" fill="currentColor" opacity="0.55">${fmt(n.val)}</text>`;
+  });
+
+  svg+='</svg>';
+
+  // Breakdown table below the diagram: category -> subcategories
+  let tbl='<div class="tw mt4"><table><thead><tr><th>Category</th><th>Subcategory</th><th style="text-align:right">Amount</th><th style="text-align:right">% of Spend</th></tr></thead><tbody>';
+  Object.keys(expByCat).sort((a,b)=>{
+    const ta=Object.values(expByCat[a]).reduce((s,v)=>s+v,0);
+    const tb=Object.values(expByCat[b]).reduce((s,v)=>s+v,0);
+    return tb-ta;
+  }).forEach(cat=>{
+    const subs=Object.entries(expByCat[cat]).sort((a,b)=>b[1]-a[1]);
+    subs.forEach(([sub,amt],i)=>{
+      tbl+=`<tr>${i===0?`<td class="tdm" rowspan="${subs.length}">${esc(cat)}</td>`:''}<td class="txs t2">${esc(sub)}</td><td class="mono" style="text-align:right">${fmt(amt)}</td><td class="txs t2" style="text-align:right">${totalExpense>0?(amt/totalExpense*100).toFixed(1):'0.0'}%</td></tr>`;
+    });
+  });
+  tbl+='</tbody></table></div>';
+
+  return `<div style="overflow-x:auto">${svg}</div>${tbl}`;
+}
 
 // ═══════════════ BALANCE REPORT ═══════════════
 function rBal(){
@@ -3699,7 +4124,7 @@ let syncDebounceTimer=null;
 // Gather every piece of persisted state into one object
 function gatherFullState(){
   return{
-    ACCTS,CATS,txns,obs,dues,taxMaps,archivedAccts,archivedCats,goals,balFloors,budgets
+    ACCTS,CATS,txns,obs,dues,taxMaps,archivedAccts,archivedCats,goals,balFloors,budgets,recurTemplates
   };
 }
 
@@ -3717,6 +4142,7 @@ window.fbApplyRemoteState=function(state){
   if(state.goals)goals=state.goals;
   if(state.balFloors)balFloors=state.balFloors;
   if(state.budgets)budgets=state.budgets;
+  if(state.recurTemplates)recurTemplates=state.recurTemplates;
   // Persist locally too so it survives offline / page refresh
   localStorage.setItem('llb_a',JSON.stringify(ACCTS));
   localStorage.setItem('llb_c',JSON.stringify(CATS));
@@ -3729,6 +4155,7 @@ window.fbApplyRemoteState=function(state){
   localStorage.setItem('llb_goals',JSON.stringify(goals));
   localStorage.setItem('llb_floors',JSON.stringify(balFloors));
   localStorage.setItem('llb_budgets',JSON.stringify(budgets));
+  localStorage.setItem('llb_recur',JSON.stringify(recurTemplates));
   // Re-render whatever's on screen right now
   initForms();
   const sumEl=document.getElementById('sync-status-msg');
@@ -3789,8 +4216,10 @@ async function clearTransactionsOnly(){
   const ok=confirm('CLEAR TRANSACTIONS & BALANCES\n\nThis will permanently delete every transaction AND reset every account\'s opening balance to $0.\n\nYour accounts, categories, financial goals, budgets, and tax mappings themselves will NOT be deleted\u2014only transactions and balances reset.\n\nThis cannot be undone.\n\nClick OK to continue.');
   if(!ok)return;
 
-  // Wipe transactions
+  // Wipe transactions and recurring rules
   txns=[];
+  recurTemplates=[];
+  localStorage.setItem('llb_recur','[]');
 
   // Reset every account's opening balance to $0
   Object.keys(obs).forEach(k=>{obs[k]=0;});
@@ -3820,7 +4249,7 @@ async function clearTransactionsOnly(){
 }
 
 function expData(){
-  const data={accounts:ACCTS,cats:CATS,txns,obs,dues,taxMaps,archivedAccts,archivedCats,goals,balFloors,budgets};
+  const data={accounts:ACCTS,cats:CATS,txns,obs,dues,taxMaps,archivedAccts,archivedCats,goals,balFloors,budgets,recurTemplates};
   const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='lowe-life-backup.json';a.click();
 }
@@ -3837,6 +4266,7 @@ function impData(input){
       if(data.goals)goals=data.goals;
       if(data.balFloors){balFloors=data.balFloors;saveFloorData();}
       if(data.budgets){budgets=data.budgets;saveBudgets();}
+      if(data.recurTemplates){recurTemplates=data.recurTemplates;saveRecur();}
       save();saveTaxMaps();saveGoals();initForms();rDash();
       toast('Data imported \u2713');
     }catch{alert('Invalid JSON file.');}
@@ -3846,6 +4276,18 @@ function impData(input){
 
 // ═══════════════ INIT ═══════════════
 window.addEventListener('DOMContentLoaded',()=>{
+  // Warn visibly if we're in fallback in-memory storage mode (nothing will persist)
+  let usingRealStorage=true;
+  try{
+    const k='__llb_check__';window.localStorage.setItem(k,'1');window.localStorage.removeItem(k);
+  }catch(e){usingRealStorage=false;}
+  if(!usingRealStorage){
+    const banner=document.createElement('div');
+    banner.style.cssText='position:fixed;top:0;left:0;right:0;z-index:9999;background:var(--yw);color:#000;text-align:center;padding:8px;font-size:13px;font-weight:600';
+    banner.textContent='\u26A0\uFE0F Test mode: opened as a local file, so nothing you enter here will be saved. Serve over http:// or upload to GitHub Pages for real use.';
+    document.body.prepend(banner);
+  }
+  migrateRecurring();
   initForms();chkDues();
   // Init tax mapping modal selects
   tmTypeChanged();
@@ -4034,4 +4476,3 @@ function closeSidebar(){
 </nav>
 </body>
 </html>
-
